@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Scarnie\'s Dice</string>
+    <string name="default_score">Your score: 0 Computer score: 0</string>
+    <string name="roll">ROLL</string>
+    <string name="hold">HOLD</string>
+    <string name="reset">RESET</string>
+</resources>
