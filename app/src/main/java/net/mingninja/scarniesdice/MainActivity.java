@@ -1,7 +1,10 @@
 package net.mingninja.scarniesdice;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +13,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+//import android.app.AlertDialog;
+import android.view.View.OnClickListener;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -23,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     TextView scoreKeep, status;
     ImageView dice;
     Button rollButton, resetButton, holdButton;
+
+    final Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         Random rand = new Random();
         return rand.nextInt(DICE_FACES) + 1;
     }
+
     public void rollDice(View v) { //TODO randomly select dice value, update display to display image
         status.setText("");
         int diceValue = randDice();
@@ -91,6 +100,39 @@ public class MainActivity extends AppCompatActivity {
         Log.v("player: ","Player: "+String.valueOf(player));
      }
 
+    public void showWinner(String message){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Play again?");
+        builder.setView(R.layout.winner_dialog);
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        TextView dialog_text = (TextView) dialog.findViewById(R.id.dialog_text);
+        dialog_text.setText(message);
+
+        Button dialog_button = (Button) dialog.findViewById(R.id.dialog_button);
+        dialog_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+    }
+
+    public void determineWinner(int player, int computer) {
+
+        String finalScore = "Player: " + player + "   Computer: " +computer;
+        if (player > 100 || computer >= 100) {
+            if (player >= 100) {
+                showWinner("You won!\n"+finalScore);
+            } else if (computer >= 100) {
+                showWinner("Computer Won. Better luck next time.\n"+finalScore);
+            }
+            resetGame(view);
+        }
+    }
+
     public void holdTurn(View v) {
         if(player) {
             user_total_score =+ user_turn_score;
@@ -112,17 +154,18 @@ public class MainActivity extends AppCompatActivity {
         user_turn_score = 0;
         computer_total_score = 0;
         computer_turn_score = 0;
+        status.setText(" ");
         holdButton.setEnabled(true);
         rollButton.setEnabled(true);
     }
 
     public void updateDiceView(int diceValue){
         dice.setImageResource(dice_images.get(diceValue));
-
     }
 
     public void updateScoreLabel(int userScore, int computerScore){
         scoreKeep.setText("Your score: "+userScore+" Computer score: "+computerScore);
+        determineWinner(userScore,computerScore);
     }
 
     public void computerTurn() {
